@@ -21,3 +21,7 @@
 {"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/projects/app/node_modules/../../app/./PLAN.md"}}}
 {"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me//projects/app/PLAN.md"}}}
 {"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/projects/app/x/../docs/blog/post.md"}}}
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Write","cwd":"/home/me/projects/app/docs/blog","tool_input":{"file_path":"../../PLAN.md"}}}
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Write","cwd":"/home/me/projects/app","tool_input":{"file_path":"PLAN.md"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","cwd":"/home/me/projects/app","tool_input":{"file_path":"docs/blog/post.md"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/../tmp/PLAN.md"}}}

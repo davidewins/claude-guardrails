@@ -20,14 +20,19 @@ printf '%s' "$input" | jq -c --slurpfile cfg "$config" '
   def glob2re: "^" + (gsub("(?<c>[.+^${}()|\\[\\]\\\\])"; "\\\(.c)") | gsub("\\*"; ".*") | gsub("\\?"; ".")) + "$";
   def anyglob($s): any(.[]; . as $g | $s | test($g | glob2re));
   # Resolve ., .. and repeated slashes so a/_archive/../plan.md cannot slip past an except glob.
+  # Relative paths are resolved against the hook cwd; a leading .. that is left over is kept.
   def normpath:
     (if startswith("/") then "/" else "" end) as $root
     | $root + (reduce (split("/")[] | select(. != "" and . != ".")) as $p ([];
-        if $p == ".." then .[:-1] else . + [$p] end) | join("/"));
+        if $p != ".." then . + [$p]
+        elif length > 0 and .[-1] != ".." then .[:-1]
+        elif $root == "" then . + [".."]
+        else . end) | join("/"));
 
   . as $in
   | ($in.tool_input.command // "") as $cmd
-  | ($in.tool_input.file_path // "" | normpath) as $file
+  | ($in.tool_input.file_path // "") as $raw
+  | (if $raw == "" or ($raw | startswith("/")) or ($in.cwd // "") == "" then $raw else $in.cwd + "/" + $raw end | normpath) as $file
   | [ $cfg[0].rules[]
       | select((.event // "PreToolUse") == $in.hook_event_name)
       | select(.tools == null or any(.tools[]; . == $in.tool_name))
