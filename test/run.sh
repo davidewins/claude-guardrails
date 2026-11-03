@@ -22,5 +22,14 @@ while IFS= read -r line; do
   fi
 done < "$root/test/cases.jsonl"
 
+# A broken config must block (exit 2), not allow.
+bad="$(mktemp)"; echo '{"rules":[{"tools":["Bash"],"command":["("],"decision":"deny"}]}' > "$bad"
+if echo '{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"ls"}}' | GUARDRAILS_CONFIG="$bad" bash "$root/guardrails.sh" 2>/dev/null; [ $? -eq 2 ]; then
+  pass=$((pass + 1))
+else
+  fail=$((fail + 1)); echo "FAIL: bad config did not exit 2"
+fi
+rm -f "$bad"
+
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

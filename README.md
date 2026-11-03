@@ -52,6 +52,8 @@ The config is read from `$GUARDRAILS_CONFIG`, or `~/.claude/guardrails.json` if 
 
 Regexes use jq's Oniguruma syntax, so POSIX classes like `[[:space:]]` work. Matching is on the raw command text, so `ssh host 'bun install'` is caught too.
 
+Before matching, `file_path` is cleaned up: `.`, `..` and doubled slashes are resolved, so `docs/blog/../PLAN.md` cannot slip past an `except` glob. If the config has bad JSON or a bad regex, the hook exits 2 and blocks the call instead of letting it through.
+
 [`examples/guardrails.json`](examples/guardrails.json) has rules for the following:
 
 - no bun

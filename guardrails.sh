@@ -12,14 +12,22 @@ set -u
 config="${GUARDRAILS_CONFIG:-$HOME/.claude/guardrails.json}"
 [ -f "$config" ] || exit 0
 
-jq -c --slurpfile cfg "$config" '
+input="$(cat)"
+
+# Fail closed: a broken config or bad regex blocks the call (exit 2) instead of letting it through.
+printf '%s' "$input" | jq -c --slurpfile cfg "$config" '
   # Glob to anchored regex. * and ? match across /, like a bash case pattern.
   def glob2re: "^" + (gsub("(?<c>[.+^${}()|\\[\\]\\\\])"; "\\\(.c)") | gsub("\\*"; ".*") | gsub("\\?"; ".")) + "$";
   def anyglob($s): any(.[]; . as $g | $s | test($g | glob2re));
+  # Resolve ., .. and repeated slashes so a/_archive/../plan.md cannot slip past an except glob.
+  def normpath:
+    (if startswith("/") then "/" else "" end) as $root
+    | $root + (reduce (split("/")[] | select(. != "" and . != ".")) as $p ([];
+        if $p == ".." then .[:-1] else . + [$p] end) | join("/"));
 
   . as $in
   | ($in.tool_input.command // "") as $cmd
-  | ($in.tool_input.file_path // "") as $file
+  | ($in.tool_input.file_path // "" | normpath) as $file
   | [ $cfg[0].rules[]
       | select((.event // "PreToolUse") == $in.hook_event_name)
       | select(.tools == null or any(.tools[]; . == $in.tool_name))
@@ -32,4 +40,4 @@ jq -c --slurpfile cfg "$config" '
     else
       {hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: .decision, permissionDecisionReason: .reason}}
     end
-'
+' || { echo "claude-guardrails: could not evaluate $config (bad JSON or regex), blocking." >&2; exit 2; }
