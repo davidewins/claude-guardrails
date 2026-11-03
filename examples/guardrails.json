@@ -1,0 +1,42 @@
+{
+  "rules": [
+    {
+      "tools": ["Write"],
+      "path": ["*/projects/*.md"],
+      "except": ["*/README.md", "*/CHANGELOG.md", "*/CLAUDE.md", "*/AGENTS.md", "*/SKILL.md", "*/node_modules/*", "*/docs/blog/*"],
+      "decision": "deny",
+      "reason": "Plans, specs and audits go in the issue tracker, not new .md files in the repo. Write content docs under docs/blog/ or ask the user first."
+    },
+    {
+      "tools": ["Bash"],
+      "command": ["(^|[;&|(`\"'[:space:]])bunx?([[:space:]]|$)"],
+      "decision": "deny",
+      "reason": "This project uses npm. Use npm / npx instead of bun / bunx."
+    },
+    {
+      "tools": ["Bash"],
+      "command": ["gh[[:space:]]+pr[[:space:]]+create"],
+      "decision": "deny",
+      "reason": "Do not open pull requests unless the user asks for one."
+    },
+    {
+      "tools": ["Bash"],
+      "command": ["eas(-cli)?[[:space:]]+build", "(--profile|-e)[= ]+production"],
+      "decision": "ask",
+      "reason": "Production EAS build: needs the user's explicit go-ahead."
+    },
+    {
+      "tools": ["Bash"],
+      "command": ["eas(-cli)?[[:space:]]+update"],
+      "decision": "ask",
+      "reason": "OTA update: confirm lint passed and the channel, runtime version and env are right before shipping."
+    },
+    {
+      "event": "PostToolUse",
+      "tools": ["Write", "Edit"],
+      "path": ["*/src/*.tsx"],
+      "except": ["*__tests__*", "*.test.tsx", "*.spec.tsx"],
+      "context": "UI file changed. Before calling this done:\n- Screenshot it in light and dark mode and look at the result.\n- Check the empty, loading and error states.\nIf you did not check something, say so."
+    }
+  ]
+}

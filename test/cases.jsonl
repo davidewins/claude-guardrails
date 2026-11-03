@@ -1,0 +1,19 @@
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"bun install"}}}
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"cd app && bunx tsc"}}}
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"ssh box 'bun run dev'"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"npm i bun-types"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"echo bunny"}}}
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"gh pr create --fill"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"gh pr list"}}}
+{"expect":"ask","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"npx eas-cli build -e production -p ios"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"eas build --profile preview"}}}
+{"expect":"ask","input":{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"eas update --branch production"}}}
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/projects/app/PLAN.md"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/projects/app/README.md"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/projects/app/docs/blog/launch.md"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/tmp/PLAN.md"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Edit","tool_input":{"file_path":"/home/me/projects/app/PLAN.md"}}}
+{"expect":"context","input":{"hook_event_name":"PostToolUse","tool_name":"Edit","tool_input":{"file_path":"/home/me/projects/app/src/screens/Home.tsx"}}}
+{"expect":"none","input":{"hook_event_name":"PostToolUse","tool_name":"Edit","tool_input":{"file_path":"/home/me/projects/app/src/__tests__/Home.tsx"}}}
+{"expect":"none","input":{"hook_event_name":"PostToolUse","tool_name":"Edit","tool_input":{"file_path":"/home/me/projects/app/src/util.ts"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Edit","tool_input":{"file_path":"/home/me/projects/app/src/screens/Home.tsx"}}}
