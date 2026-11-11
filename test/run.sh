@@ -31,5 +31,35 @@ else
 fi
 rm -f "$bad"
 
+# Symlinks: a write through a link is checked against the real path too.
+# check <expect> <file_path>
+check() {
+  local out got
+  out="$(jq -cn --arg f "$2" '{hook_event_name:"PreToolUse",tool_name:"Write",tool_input:{file_path:$f}}' | bash "$root/guardrails.sh")"
+  got="$(printf '%s' "$out" | jq -r '.hookSpecificOutput.permissionDecision' 2>/dev/null)"
+  [ -z "$got" ] && got="none"
+  if [ "$got" = "$1" ]; then
+    pass=$((pass + 1))
+  else
+    fail=$((fail + 1)); echo "FAIL: expected $1, got $got: ${2#"$tmp"}"
+  fi
+}
+tmp="$(mktemp -d)"
+mkdir -p "$tmp/projects/app/docs/blog" "$tmp/scratch"
+touch "$tmp/projects/app/PLAN.md"
+ln -s "$tmp/projects/app" "$tmp/scratch/dirlink"
+ln -s "$tmp/projects/app/PLAN.md" "$tmp/scratch/notes.txt"
+ln -s "../projects/app" "$tmp/scratch/rellink"
+ln -s "$tmp/scratch/loop" "$tmp/scratch/loop"
+check deny "$tmp/scratch/dirlink/NEW.md"          # folder link into a protected folder
+check deny "$tmp/scratch/notes.txt"               # file link to a protected file
+check deny "$tmp/scratch/rellink/sub/NEW.md"      # relative link, target folder does not exist yet
+check deny "$tmp/scratch/dirlink/docs/blog/../NEW.md"
+check none "$tmp/scratch/dirlink/docs/blog/post.md"  # real path is excepted
+check none "$tmp/scratch/dirlink/README.md"
+check none "$tmp/scratch/plain.md"                # no link, not protected
+check none "$tmp/scratch/loop/x.md"               # a link loop must not hang or block
+rm -rf "$tmp"
+
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

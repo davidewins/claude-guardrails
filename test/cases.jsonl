@@ -25,3 +25,8 @@
 {"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Write","cwd":"/home/me/projects/app","tool_input":{"file_path":"PLAN.md"}}}
 {"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","cwd":"/home/me/projects/app","tool_input":{"file_path":"docs/blog/post.md"}}}
 {"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/../tmp/PLAN.md"}}}
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/Projects/app/PLAN.md"}}}
+{"expect":"deny","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/projects/app/plan.MD"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/projects/app/readme.md"}}}
+{"expect":"none","input":{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/home/me/projects/app/Docs/Blog/launch.md"}}}
+{"expect":"context","input":{"hook_event_name":"PostToolUse","tool_name":"Edit","tool_input":{"file_path":"/home/me/projects/app/SRC/screens/Home.TSX"}}}

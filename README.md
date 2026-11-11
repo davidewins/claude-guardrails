@@ -1,6 +1,6 @@
 # claude-guardrails
 
-One [Claude Code hook](https://docs.claude.com/en/docs/claude-code/hooks) with all your rules in a JSON file. It blocks commands, asks before risky ones, keeps files out of folders and adds reminders after edits. It needs only bash and `jq`, and takes a few milliseconds per tool call.
+One [Claude Code hook](https://docs.claude.com/en/docs/claude-code/hooks) with all your rules in a JSON file. It blocks commands, asks before risky ones, keeps files out of folders and adds reminders after edits. It needs only bash and `jq`, and takes around 10 to 20 milliseconds per tool call.
 
 ```json
 {
@@ -44,7 +44,7 @@ The config is read from `$GUARDRAILS_CONFIG`, or `~/.claude/guardrails.json` if 
 | `event` | `PreToolUse` (default) or `PostToolUse` |
 | `tools` | Tool names the rule applies to, such as `["Bash"]` or `["Write", "Edit"]`. Leave it out to match every tool. |
 | `command` | Regexes tested against a Bash command. All of them must match. |
-| `path` | Globs tested against `file_path`. One of them must match. `*` matches across `/`. |
+| `path` | Globs tested against `file_path`. One of them must match. `*` matches across `/`. Case is ignored. |
 | `except` | Globs that cancel a `path` match. |
 | `decision` | `deny`, `ask` or `allow` (PreToolUse) |
 | `reason` | Shown to Claude (deny) or to you (ask) |
@@ -52,7 +52,13 @@ The config is read from `$GUARDRAILS_CONFIG`, or `~/.claude/guardrails.json` if 
 
 Regexes use jq's Oniguruma syntax, so POSIX classes like `[[:space:]]` work. Matching is on the raw command text, so `ssh host 'bun install'` is caught too.
 
-Before matching, `file_path` is cleaned up: `.`, `..` and doubled slashes are resolved, so `docs/blog/../PLAN.md` cannot slip past an `except` glob. If the config has bad JSON or a bad regex, the hook exits 2 and blocks the call instead of letting it through.
+Before matching, `file_path` is cleaned up: `.`, `..` and doubled slashes are resolved, so `docs/blog/../PLAN.md` cannot slip past an `except` glob. Symlinks are followed too: a path rule is checked against the path as written and against the real path, and it applies if either one matches and is not excepted. Globs ignore case, because on a Mac or Windows disk `docs/plan.md` and `Docs/PLAN.md` are the same file.
+
+If an `except` glob names a folder through a symlink (on a Mac `/tmp` is a link to `/private/tmp`), write it so it also matches the real path, for example `*/tmp/*`.
+
+Path rules only see the `file_path` of tools like Write and Edit. A file written by a Bash command (`echo > file`, `cp`, `sed -i`) is not checked against them. Use a `command` rule to catch those.
+
+If the config has bad JSON or a bad regex, the hook exits 2 and blocks the call instead of letting it through.
 
 [`examples/guardrails.json`](examples/guardrails.json) has rules for the following:
 
